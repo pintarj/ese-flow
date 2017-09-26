@@ -51,6 +51,24 @@ namespace ese
         }
 
         template<typename Type>
+        template<class Clock, class Duration>
+        bool Receiver<Type>::try_receive_until(Type* address, const std::chrono::time_point<Clock, Duration>& time)
+        {
+            std::unique_lock<std::mutex> lock(channel->mutex);
+
+            if (!channel_queue_not_empty_predicate())
+            {
+                channel->condition_variable.wait_until(lock, time);
+
+                if (!channel_queue_not_empty_predicate())
+                    return false;
+            }
+
+            *address = std::move(channel->pop_from_queue());
+            return true;
+        }
+
+        template<typename Type>
         template<class Rep, class Period>
         bool Receiver<Type>::try_receive_for(Type* address, const std::chrono::duration<Rep, Period>& time)
         {

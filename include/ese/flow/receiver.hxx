@@ -78,6 +78,23 @@ namespace ese
                 bool try_receive(Type* address, bool blocking = false) noexcept;
 
                 /**
+                 * \brief Tries to receive an object from the channel until a time point.
+                 * \param object The pointer to the address where the received object have to be moved.
+                 * \param time The time point to wait until.
+                 * \return True if the object was received (and moved to the address passed as argument), false
+                 *     otherwise (maybe waked up by the channel).
+                 * \sa receive()
+                 * \sa try_receive()
+                 *
+                 * The object will be moved to the address passed as argument and the method will return true. \n
+                 * Otherwise, if there is no object to receive (until the specified time point), nothing will be moved
+                 * to the passed address and the method will return false. This can happen if: the Channel object has
+                 * woke up this object; or time point was reached and there is no object to receive.
+                 * */
+                template<class Clock, class Duration>
+                bool try_receive_until(Type* address, const std::chrono::time_point<Clock, Duration>& time);
+
+                /**
                  * \brief Tries to receive an object from the channel for an amount of time.
                  * \param object The pointer to the address where the received object have to be moved.
                  * \param time The amount of time to wait.
