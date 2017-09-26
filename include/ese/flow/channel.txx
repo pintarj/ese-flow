@@ -32,5 +32,11 @@ namespace ese
         {
             return sender;
         }
+
+        template<typename Type>
+        void Channel<Type>::wake_up() noexcept
+        {
+            condition_variable.notify_all();
+        }
     }
 }

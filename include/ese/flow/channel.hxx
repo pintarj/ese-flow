@@ -87,6 +87,12 @@ namespace ese
                  * \return The sender.
                  * */
                 Sender<Type>& get_sender() noexcept;
+
+                /**
+                 * \brief Wakes up all the threads that are waiting to receive an object via the Receiver object
+                 *     owned by this Channel object.
+                 * */
+                void wake_up() noexcept;
         };
     }
 }

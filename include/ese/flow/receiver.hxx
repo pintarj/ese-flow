@@ -63,29 +63,33 @@ namespace ese
                 /**
                  * \brief Tries to receive an object from the channel.
                  * \param object The pointer to the address where the received object have to be moved.
+                 * \param blocking If true, the method will block until an object is received or the Channel object
+                 *
                  * \return True if the object was received (and moved to the address passed as argument), false
-                 *     otherwise.
+                 *     otherwise (if blocking parameter was true, maybe waked up by the channel).
                  * \sa receive()
                  * \sa try_receive_for()
                  *
-                 * The object will be moved to the address passed as argument and the method will return true.
+                 * The object will be moved to the address passed as argument and the method will return true. \n
                  * Otherwise, if there is no object to receive, nothing will be moved to the passed address and the
-                 * method will return false.
+                 * method will return false. This can happen if: blocking parameter is true and the Channel object has
+                 * woke up this object; or blocking parameter is false and there is no object to receive.
                  * */
-                bool try_receive(Type* address) noexcept;
+                bool try_receive(Type* address, bool blocking = false) noexcept;
 
                 /**
                  * \brief Tries to receive an object from the channel for an amount of time.
                  * \param object The pointer to the address where the received object have to be moved.
                  * \param time The amount of time to wait.
                  * \return True if the object was received (and moved to the address passed as argument), false
-                 *     otherwise.
+                 *     otherwise (maybe waked up by the channel).
                  * \sa receive()
                  * \sa try_receive()
                  *
-                 * The object will be moved to the address passed as argument and the method will return true.
+                 * The object will be moved to the address passed as argument and the method will return true. \n
                  * Otherwise, if there is no object to receive (for the entire specified amount of time), nothing will
-                 * be moved to the passed address and the method will return false.
+                 * be moved to the passed address and the method will return false. This can happen if: the Channel
+                 * object has woke up this object; or time has elapsed and there is no object to receive.
                  * */
                 template<class Rep, class Period>
                 bool try_receive_for(Type* address, const std::chrono::duration<Rep, Period>& time);

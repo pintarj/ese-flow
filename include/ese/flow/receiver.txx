@@ -31,12 +31,20 @@ namespace ese
         }
 
         template<typename Type>
-        bool Receiver<Type>::try_receive(Type* address) noexcept
+        bool Receiver<Type>::try_receive(Type* address, bool blocking) noexcept
         {
             std::unique_lock<std::mutex> lock(channel->mutex);
 
             if (!channel_queue_not_empty_predicate())
-                return false;
+            {
+                if (!blocking)
+                    return false;
+
+                channel->condition_variable.wait(lock);
+
+                if (!channel_queue_not_empty_predicate())
+                    return false;
+            }
 
             *address = std::move(channel->pop_from_queue());
             return true;
@@ -47,10 +55,14 @@ namespace ese
         bool Receiver<Type>::try_receive_for(Type* address, const std::chrono::duration<Rep, Period>& time)
         {
             std::unique_lock<std::mutex> lock(channel->mutex);
-            bool empty = !channel->condition_variable.wait_for(lock, time, channel_queue_not_empty_predicate);
 
-            if (empty)
-                return false;
+            if (!channel_queue_not_empty_predicate())
+            {
+                channel->condition_variable.wait_for(lock, time);
+
+                if (!channel_queue_not_empty_predicate())
+                    return false;
+            }
 
             *address = std::move(channel->pop_from_queue());
             return true;
