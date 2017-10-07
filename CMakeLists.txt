@@ -9,3 +9,5 @@ ADD_LIBRARY(ese-flow SHARED
     src/version.cxx
 )
 SET_PROPERTY(TARGET ese-flow PROPERTY CXX_STANDARD 14)
+
+ADD_SUBDIRECTORY(test)
