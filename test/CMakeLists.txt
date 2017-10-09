@@ -29,9 +29,12 @@ ADD_SUBDIRECTORY(
     ${CMAKE_BINARY_DIR}/googletest-build
 )
 
-ADD_EXECUTABLE(ese-flow-test
-    src/main.cxx
+ADD_EXECUTABLE(test-executable src/test-executable.cxx)
+TARGET_LINK_LIBRARIES(test-executable gtest_main)
+ADD_TEST(NAME test-executable COMMAND test-executable)
+
+SET_PROPERTY(
+    TARGET
+        test-executable
+    PROPERTY CXX_STANDARD 14
 )
-SET_PROPERTY(TARGET ese-flow-test PROPERTY CXX_STANDARD 14)
-TARGET_LINK_LIBRARIES(ese-flow-test gtest gtest_main)
-ADD_TEST(NAME ese-flow-test COMMAND ese-flow-test)
