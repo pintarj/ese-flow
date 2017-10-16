@@ -33,8 +33,13 @@ ADD_EXECUTABLE(test-executable src/test-executable.cxx)
 TARGET_LINK_LIBRARIES(test-executable gtest_main)
 ADD_TEST(NAME test-executable COMMAND test-executable)
 
+ADD_EXECUTABLE(test-channel src/test-channel.cxx)
+TARGET_LINK_LIBRARIES(test-channel gtest_main)
+ADD_TEST(NAME test-channel COMMAND test-channel)
+
 SET_PROPERTY(
     TARGET
         test-executable
+        test-channel
     PROPERTY CXX_STANDARD 14
 )
