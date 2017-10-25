@@ -26,7 +26,8 @@ namespace ese
          * \brief Used to safely share data among threads.
          * \param Type The type of objects to share.
          * \param Queue The queue type used to store sent objects that waits to be received. The specified type have to
-         *     implement at least pop(), front() and push() methods (std::queue does).
+         *     implement at least pop(), front() (or top()), and push() methods (std::queue and std::priority_queue are
+         *     both suitable as this template parameter).
          *
          * To send objects in channel use the channel's Sender object and to receive data from the channel use the
          * channel's Receiver object. \n

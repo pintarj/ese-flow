@@ -31,10 +31,22 @@ namespace ese
             condition_variable.notify_all();
         }
 
+        template <typename Queue>
+        static auto front_or_top(Queue& queue) -> decltype(queue.top())
+        {
+            return queue.top();
+        }
+
+        template <typename Queue>
+        static auto front_or_top(Queue& queue) -> decltype(queue.front())
+        {
+            return queue.front();
+        }
+
         template<typename Type, typename Queue>
         Type Channel<Type, Queue>::pop_from_queue() noexcept
         {
-            Type object = std::move(queue.front());
+            Type object = std::move(front_or_top(queue));
             queue.pop();
             return object;
         }

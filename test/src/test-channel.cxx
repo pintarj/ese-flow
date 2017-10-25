@@ -189,6 +189,23 @@ TEST_F(ChannelTest, tryReceiveForNoDataWakeUp)
     ASSERT_FALSE(received);
 }
 
+/*
+ * Checks if Channel works also with the std::priority_queue as Queue template parameter.
+ */
+TEST_F(ChannelTest, priorityQueueAsTemplateArgument)
+{
+    Channel<int, std::priority_queue<int>> channel;
+    channel.get_sender() << 3;
+    channel.get_sender() << 1;
+    channel.get_sender() << 4;
+    channel.get_sender() << 2;
+
+    ASSERT_EQ(channel.get_receiver().receive(), 4);
+    ASSERT_EQ(channel.get_receiver().receive(), 3);
+    ASSERT_EQ(channel.get_receiver().receive(), 2);
+    ASSERT_EQ(channel.get_receiver().receive(), 1);
+}
+
 int main(int argc, char** argv)
 {
     testing::InitGoogleTest(&argc, argv);

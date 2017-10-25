@@ -21,7 +21,8 @@ namespace ese
          * \brief Send objects into a Channel object.
          * \param Type The type of objects to send.
          * \param Queue The queue type used to store sent objects that waits to be received. The specified type have to
-         *     implement at least pop(), front() and push() methods (std::queue does).
+         *     implement at least pop(), front() (or top()), and push() methods (std::queue and std::priority_queue are
+         *     both suitable as this template parameter).
          * */
         template<typename Type, typename Queue>
         class Sender
