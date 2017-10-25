@@ -6,7 +6,7 @@ namespace ese
 {
     namespace flow
     {
-        template<typename Type>
+        template<typename Type, typename Queue>
         class Receiver;
     }
 }
@@ -22,30 +22,18 @@ namespace ese
         /**
          * \brief Receives objects from a Channel object.
          * \param Type The type of objects to receive.
+         * \param Queue The queue type used to store sent objects that waits to be received. The specified type have to
+         *     implement at least pop(), front() and push() methods (std::queue does).
          */
-        template<typename Type>
+        template<typename Type, typename Queue>
         class Receiver
         {
-            friend Channel<Type>;
-
-            private:
-                /**
-                 * \brief The channel from which it receives the objects.
-                 * */
-                Channel<Type>* channel;
-
-                /**
-                 * \brief Returns true if the channel's queue is not empty.
-                 * */
-                std::function<bool()> channel_queue_not_empty_predicate;
-
-                /**
-                 * \brief Create a Receiver object.
-                 * \param channel The reference to the channel from which it receives the objects.
-                 * */
-                Receiver(Channel<Type>* channel) noexcept;
-
             public:
+                /**
+                 * \brief The type of the Channel that this Receiver interacts with.
+                 * */
+                typedef Channel<Type, Queue> ChannelType;
+
                 /**
                  * \brief Destroys the object.
                  * */
@@ -110,6 +98,25 @@ namespace ese
                  * */
                 template<class Rep, class Period>
                 bool try_receive_for(Type* address, const std::chrono::duration<Rep, Period>& time);
+
+            private:
+                /**
+                 * \brief The channel from which it receives the objects.
+                 * */
+                ChannelType* channel;
+
+                /**
+                 * \brief Returns true if the channel's queue is not empty.
+                 * */
+                std::function<bool()> channel_queue_not_empty_predicate;
+
+                /**
+                 * \brief Create a Receiver object.
+                 * \param channel The reference to the channel from which it receives the objects.
+                 * */
+                Receiver(ChannelType* channel) noexcept;
+
+            friend ChannelType;
         };
 
     }

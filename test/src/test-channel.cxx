@@ -12,8 +12,8 @@ class ChannelTest: public testing::Test
 {
     protected:
         Channel<int> channel;
-        Receiver<int>& receiver;
-        Sender<int>& sender;
+        Channel<int>::ReceiverType& receiver;
+        Channel<int>::SenderType& sender;
 
     public:
         ChannelTest():

@@ -6,7 +6,7 @@ namespace ese
 {
     namespace flow
     {
-        template<typename Type>
+        template<typename Type, typename Queue>
         class Channel;
     }
 }
@@ -25,23 +25,58 @@ namespace ese
         /**
          * \brief Used to safely share data among threads.
          * \param Type The type of objects to share.
+         * \param Queue The queue type used to store sent objects that waits to be received. The specified type have to
+         *     implement at least pop(), front() and push() methods (std::queue does).
          *
          * To send objects in channel use the channel's Sender object and to receive data from the channel use the
          * channel's Receiver object. \n
-         * The objects that are sent, but not received yet are stored in a queue. \n
+         * The objects that are sent, but not received yet are stored in a queue of template type Queue. \n
          * All operation (even those of receiver and sender) are thread-safe.
          * */
-        template <typename Type>
+        template <typename Type, typename Queue = std::queue<Type>>
         class Channel
         {
-            friend Receiver<Type>;
-            friend Sender<Type>;
+            public:
+                /**
+                 * \brief The type of the Receiver that interacts with this Channel.
+                 * */
+                typedef Receiver<Type, Queue> ReceiverType;
+
+                /**
+                 * \brief The type of the Sender that interacts with this Channel.
+                 * */
+                typedef Sender<Type, Queue> SenderType;
+
+                /**
+                 * \brief Construct a Channel object.
+                 * \sa get_receiver()
+                 * \sa get_sender()
+                 * */
+                Channel();
+
+                /**
+                 * \brief Get the channel's receiver.
+                 * \return The receiver.
+                 * */
+                ReceiverType& get_receiver() noexcept;
+
+                /**
+                 * \brief Get the channel's sender.
+                 * \return The sender.
+                 * */
+                SenderType& get_sender() noexcept;
+
+                /**
+                 * \brief Wakes up all the threads that are waiting to receive an object via the Receiver object
+                 *     owned by this Channel object.
+                 * */
+                void wake_up() noexcept;
 
             private:
                 /**
                  * \brief The channel's queue.
                  * */
-                std::queue<Type> queue;
+                Queue queue;
 
                 /**
                  * \bried Mutex used to synchronize access to channel's queue.
@@ -56,12 +91,12 @@ namespace ese
                 /**
                  * \brief The channel's Receiver object.
                  * */
-                Receiver<Type> receiver;
+                ReceiverType receiver;
 
                 /**
                  * \brief The channel's Sender object.
                  * */
-                Sender<Type> sender;
+                SenderType sender;
 
                 /**
                  * \brief Pops the front object from the channel's queue.
@@ -69,30 +104,8 @@ namespace ese
                  * */
                 Type pop_from_queue() noexcept;
 
-            public:
-                /**
-                 * \brief Construct a Channel object.
-                 * \sa get_receiver()
-                 * */
-                Channel();
-
-                /**
-                 * \brief Get the channel's receiver.
-                 * \return The receiver.
-                 * */
-                Receiver<Type>& get_receiver() noexcept;
-
-                /**
-                 * \brief Get the channel's sender.
-                 * \return The sender.
-                 * */
-                Sender<Type>& get_sender() noexcept;
-
-                /**
-                 * \brief Wakes up all the threads that are waiting to receive an object via the Receiver object
-                 *     owned by this Channel object.
-                 * */
-                void wake_up() noexcept;
+            friend ReceiverType;
+            friend SenderType;
         };
     }
 }
