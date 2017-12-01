@@ -81,6 +81,6 @@ namespace ese
     }
 }
 
-#include <ese/flow/sender.txx>
+#include "template/sender.txx"
 
 #endif

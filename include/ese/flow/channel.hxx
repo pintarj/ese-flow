@@ -111,6 +111,6 @@ namespace ese
     }
 }
 
-#include "channel.txx"
+#include "template/channel.txx"
 
 #endif

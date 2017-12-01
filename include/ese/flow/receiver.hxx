@@ -123,6 +123,6 @@ namespace ese
     }
 }
 
-#include <ese/flow/receiver.txx>
+#include "template/receiver.txx"
 
 #endif
