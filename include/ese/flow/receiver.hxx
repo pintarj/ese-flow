@@ -6,7 +6,7 @@ namespace ese
 {
     namespace flow
     {
-        template<typename Type, typename Queue>
+        template<typename TElement, typename TQueue>
         class Receiver;
     }
 }
@@ -21,19 +21,19 @@ namespace ese
     {
         /**
          * \brief Receives objects from a Channel object.
-         * \param Type The type of objects to receive.
-         * \param Queue The queue type used to store sent objects that waits to be received. The specified type have to
+         * \param TElement The type of elements to receive.
+         * \param TQueue The queue type used to store sent objects that waits to be received. The specified type have to
          *     implement at least pop(), front() (or top()), and push() methods (std::queue and std::priority_queue are
          *     both suitable as this template parameter).
          */
-        template<typename Type, typename Queue>
+        template<typename TElement, typename TQueue>
         class Receiver
         {
             public:
                 /**
                  * \brief The type of the Channel that this Receiver interacts with.
                  * */
-                typedef Channel<Type, Queue> ChannelType;
+                typedef Channel<TElement, TQueue> ChannelType;
 
                 /**
                  * \brief Destroys the object.
@@ -47,7 +47,7 @@ namespace ese
                  *
                  * The method will wait until there is an object to receive.
                  * */
-                Type receive() noexcept;
+                TElement receive() noexcept;
 
                 /**
                  * \brief Tries to receive an object from the channel.
@@ -64,7 +64,7 @@ namespace ese
                  * method will return false. This can happen if: blocking parameter is true and the Channel object has
                  * woke up this object; or blocking parameter is false and there is no object to receive.
                  * */
-                bool try_receive(Type* address, bool blocking = false) noexcept;
+                bool try_receive(TElement* address, bool blocking = false) noexcept;
 
                 /**
                  * \brief Tries to receive an object from the channel until a time point.
@@ -81,7 +81,7 @@ namespace ese
                  * woke up this object; or time point was reached and there is no object to receive.
                  * */
                 template<class Clock, class Duration>
-                bool try_receive_until(Type* address, const std::chrono::time_point<Clock, Duration>& time);
+                bool try_receive_until(TElement* address, const std::chrono::time_point<Clock, Duration>& time);
 
                 /**
                  * \brief Tries to receive an object from the channel for an amount of time.
@@ -98,7 +98,7 @@ namespace ese
                  * object has woke up this object; or time has elapsed and there is no object to receive.
                  * */
                 template<class Rep, class Period>
-                bool try_receive_for(Type* address, const std::chrono::duration<Rep, Period>& time);
+                bool try_receive_for(TElement* address, const std::chrono::duration<Rep, Period>& time);
 
             private:
                 /**

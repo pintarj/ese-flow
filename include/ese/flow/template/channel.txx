@@ -5,48 +5,48 @@ namespace ese
 {
     namespace flow
     {
-        template<typename Type, typename Queue>
-        Channel<Type, Queue>::Channel():
+        template<typename TElement, typename TQueue>
+        Channel<TElement, TQueue>::Channel():
             receiver(this),
             sender(this)
         {
 
         }
 
-        template<typename Type, typename Queue>
-        Receiver<Type, Queue>& Channel<Type, Queue>::get_receiver() noexcept
+        template<typename TElement, typename TQueue>
+        Receiver<TElement, TQueue>& Channel<TElement, TQueue>::get_receiver() noexcept
         {
             return receiver;
         }
 
-        template<typename Type, typename Queue>
-        Sender<Type, Queue>& Channel<Type, Queue>::get_sender() noexcept
+        template<typename TElement, typename TQueue>
+        Sender<TElement, TQueue>& Channel<TElement, TQueue>::get_sender() noexcept
         {
             return sender;
         }
 
-        template<typename Type, typename Queue>
-        void Channel<Type, Queue>::wake_up() noexcept
+        template<typename TElement, typename TQueue>
+        void Channel<TElement, TQueue>::wake_up() noexcept
         {
             condition_variable.notify_all();
         }
 
-        template <typename Queue>
-        static auto front_or_top(Queue& queue) -> decltype(queue.top())
+        template <typename TQueue>
+        static auto front_or_top(TQueue& queue) -> decltype(queue.top())
         {
             return queue.top();
         }
 
-        template <typename Queue>
-        static auto front_or_top(Queue& queue) -> decltype(queue.front())
+        template <typename TQueue>
+        static auto front_or_top(TQueue& queue) -> decltype(queue.front())
         {
             return queue.front();
         }
 
-        template<typename Type, typename Queue>
-        Type Channel<Type, Queue>::pop_from_queue() noexcept
+        template<typename TElement, typename TQueue>
+        TElement Channel<TElement, TQueue>::pop_from_queue() noexcept
         {
-            Type object = std::move(front_or_top(queue));
+            TElement object = std::move(front_or_top(queue));
             queue.pop();
             return object;
         }

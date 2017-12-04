@@ -5,22 +5,22 @@ namespace ese
 {
     namespace flow
     {
-        template<typename Type, typename Queue>
-        Receiver<Type, Queue>::~Receiver() noexcept
+        template<typename TElement, typename TQueue>
+        Receiver<TElement, TQueue>::~Receiver() noexcept
         {
 
         }
 
-        template<typename Type, typename Queue>
-        Type Receiver<Type, Queue>::receive() noexcept
+        template<typename TElement, typename TQueue>
+        TElement Receiver<TElement, TQueue>::receive() noexcept
         {
             std::unique_lock<std::mutex> lock(channel->mutex);
             channel->condition_variable.wait(lock, channel_queue_not_empty_predicate);
             return std::move(channel->pop_from_queue());
         }
 
-        template<typename Type, typename Queue>
-        bool Receiver<Type, Queue>::try_receive(Type* address, bool blocking) noexcept
+        template<typename TElement, typename TQueue>
+        bool Receiver<TElement, TQueue>::try_receive(TElement* address, bool blocking) noexcept
         {
             std::unique_lock<std::mutex> lock(channel->mutex);
 
@@ -39,9 +39,9 @@ namespace ese
             return true;
         }
 
-        template<typename Type, typename Queue>
+        template<typename TElement, typename TQueue>
         template<class Clock, class Duration>
-        bool Receiver<Type, Queue>::try_receive_until(Type* address, const std::chrono::time_point<Clock, Duration>& time)
+        bool Receiver<TElement, TQueue>::try_receive_until(TElement* address, const std::chrono::time_point<Clock, Duration>& time)
         {
             std::unique_lock<std::mutex> lock(channel->mutex);
 
@@ -57,9 +57,9 @@ namespace ese
             return true;
         }
 
-        template<typename Type, typename Queue>
+        template<typename TElement, typename TQueue>
         template<class Rep, class Period>
-        bool Receiver<Type, Queue>::try_receive_for(Type* address, const std::chrono::duration<Rep, Period>& time)
+        bool Receiver<TElement, TQueue>::try_receive_for(TElement* address, const std::chrono::duration<Rep, Period>& time)
         {
             std::unique_lock<std::mutex> lock(channel->mutex);
 
@@ -75,8 +75,8 @@ namespace ese
             return true;
         }
 
-        template<typename Type, typename Queue>
-        Receiver<Type, Queue>::Receiver(ChannelType* channel) noexcept:
+        template<typename TElement, typename TQueue>
+        Receiver<TElement, TQueue>::Receiver(ChannelType* channel) noexcept:
             channel(channel),
             channel_queue_not_empty_predicate([channel] ()
                 {

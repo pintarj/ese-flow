@@ -6,7 +6,7 @@ namespace ese
 {
     namespace flow
     {
-        template<typename Type, typename Queue>
+        template<typename TElement, typename TQueue>
         class Sender;
     }
 }
@@ -19,19 +19,19 @@ namespace ese
     {
         /**
          * \brief Send objects into a Channel object.
-         * \param Type The type of objects to send.
-         * \param Queue The queue type used to store sent objects that waits to be received. The specified type have to
+         * \param TElement The type of elements to send.
+         * \param TQueue The queue type used to store sent objects that waits to be received. The specified type have to
          *     implement at least pop(), front() (or top()), and push() methods (std::queue and std::priority_queue are
          *     both suitable as this template parameter).
          * */
-        template<typename Type, typename Queue>
+        template<typename TElement, typename TQueue>
         class Sender
         {
             public:
                 /**
                  * \brief The type of the Channel that this Sender interacts with.
                  * */
-                typedef Channel<Type, Queue> ChannelType;
+                typedef Channel<TElement, TQueue> ChannelType;
 
                 /**
                  * \brief Destroys the object.
@@ -42,27 +42,27 @@ namespace ese
                  * \brief Send the object in the channel.
                  * \param object The object to send.
                  * */
-                void send(Type&& object) noexcept;
+                void send(TElement&& object) noexcept;
 
                 /**
                  * \brief Send the object in the channel.
                  * \param object The object to send.
                  * */
-                void send(const Type& object) noexcept;
-
-                /**
-                 * \brief Send the object in the channel.
-                 * \param object The object to send.
-                 * \return Reference to this Sender.
-                 * */
-                Sender<Type, Queue>& operator<<(Type&& object) noexcept;
+                void send(const TElement& object) noexcept;
 
                 /**
                  * \brief Send the object in the channel.
                  * \param object The object to send.
                  * \return Reference to this Sender.
                  * */
-                Sender<Type, Queue>& operator<<(const Type& object) noexcept;
+                Sender<TElement, TQueue>& operator<<(TElement&& object) noexcept;
+
+                /**
+                 * \brief Send the object in the channel.
+                 * \param object The object to send.
+                 * \return Reference to this Sender.
+                 * */
+                Sender<TElement, TQueue>& operator<<(const TElement& object) noexcept;
 
             private:
                 /**
