@@ -6,7 +6,6 @@
 #include <mutex>
 #include <string>
 #include <thread>
-#include <ese/flow/executable.hxx>
 
 namespace ese
 {
@@ -59,9 +58,10 @@ namespace ese
             public:
                 /**
                  * \brief Creates a Thread object running the specified executable.
-                 * \param executable The executable to run on the thread.
+                 * \param executable The executable (have to implement operator()) to run on the thread.
                  * */
-                Thread(Executable&& executable);
+                template <typename TExecutable>
+                Thread(TExecutable&& executable);
 
                 /**
                  * \brief Destroys this object.
@@ -107,5 +107,7 @@ namespace ese
         };
     }
 }
+
+#include "template/thread.txx"
 
 #endif

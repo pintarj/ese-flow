@@ -4,22 +4,7 @@ namespace ese
 {
     namespace flow
     {
-        static std::atomic_int running_native_threads(0);
-
-        Thread::Thread(Executable&& executable):
-            status(Status::NOT_STARTED)
-        {
-            Executable native_body = [this, executable = std::move(executable)] ()
-                {
-                    ++running_native_threads;
-                    this->status = Status::RUNNING;
-                    executable();
-                    this->status = Status::FINISHED;
-                    --running_native_threads;
-                };
-
-            native_thread = new std::thread(std::move(native_body));
-        }
+        std::atomic_int running_native_threads(0);
 
         Thread::~Thread()
         {

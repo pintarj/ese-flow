@@ -8,7 +8,7 @@ EXECUTE_PROCESS(
 )
 
 IF(result)
-  MESSAGE(FATAL_ERROR "CMake step for googletest failed: ${result}")
+    MESSAGE(FATAL_ERROR "CMake step for googletest failed: ${result}")
 ENDIF()
 
 EXECUTE_PROCESS(
@@ -18,7 +18,7 @@ EXECUTE_PROCESS(
 )
 
 IF(result)
-  MESSAGE(FATAL_ERROR "Build step for googletest failed: ${result}")
+    MESSAGE(FATAL_ERROR "Build step for googletest failed: ${result}")
 ENDIF()
 
 # Prevent overriding the parent project's compiler/linker settings on Windows
@@ -37,9 +37,14 @@ ADD_EXECUTABLE(test-channel src/test-channel.cxx)
 TARGET_LINK_LIBRARIES(test-channel gtest_main)
 ADD_TEST(NAME test-channel COMMAND test-channel)
 
+ADD_EXECUTABLE(test-thread src/test-thread.cxx)
+TARGET_LINK_LIBRARIES(test-thread ese-flow gtest_main)
+ADD_TEST(NAME test-thread COMMAND test-thread)
+
 SET_PROPERTY(
     TARGET
         test-executable
         test-channel
+        test-thread
     PROPERTY CXX_STANDARD 14
 )
