@@ -29,13 +29,13 @@ ADD_SUBDIRECTORY(
     ${CMAKE_BINARY_DIR}/googletest-build
 )
 
-ADD_EXECUTABLE(test-executable src/test-executable.cxx)
-TARGET_LINK_LIBRARIES(test-executable gtest_main)
-ADD_TEST(NAME test-executable COMMAND test-executable)
-
 ADD_EXECUTABLE(test-channel src/test-channel.cxx)
 TARGET_LINK_LIBRARIES(test-channel gtest_main)
 ADD_TEST(NAME test-channel COMMAND test-channel)
+
+ADD_EXECUTABLE(test-executor src/test-executor.cxx)
+TARGET_LINK_LIBRARIES(test-executor gtest_main)
+ADD_TEST(NAME test-executor COMMAND test-executor)
 
 ADD_EXECUTABLE(test-thread src/test-thread.cxx)
 TARGET_LINK_LIBRARIES(test-thread ese-flow gtest_main)
@@ -43,8 +43,8 @@ ADD_TEST(NAME test-thread COMMAND test-thread)
 
 SET_PROPERTY(
     TARGET
-        test-executable
         test-channel
+        test-executor
         test-thread
     PROPERTY CXX_STANDARD 14
 )
