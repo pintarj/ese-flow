@@ -33,6 +33,10 @@ ADD_EXECUTABLE(test-channel src/test-channel.cxx)
 TARGET_LINK_LIBRARIES(test-channel gtest_main)
 ADD_TEST(NAME test-channel COMMAND test-channel)
 
+ADD_EXECUTABLE(test-channel-consumer src/test-channel-consumer.cxx)
+TARGET_LINK_LIBRARIES(test-channel-consumer gtest_main)
+ADD_TEST(NAME test-channel-consumer COMMAND test-channel-consumer)
+
 ADD_EXECUTABLE(test-executor src/test-executor.cxx)
 TARGET_LINK_LIBRARIES(test-executor gtest_main)
 ADD_TEST(NAME test-executor COMMAND test-executor)
@@ -44,6 +48,7 @@ ADD_TEST(NAME test-thread COMMAND test-thread)
 SET_PROPERTY(
     TARGET
         test-channel
+        test-channel-consumer
         test-executor
         test-thread
     PROPERTY CXX_STANDARD 14
