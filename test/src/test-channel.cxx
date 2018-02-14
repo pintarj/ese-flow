@@ -1,6 +1,6 @@
+#include <gtest/gtest.h>
 #include <chrono>
 #include <thread>
-#include <gtest/gtest.h>
 #include <ese/flow/channel.hxx>
 
 #define THE_NUMBER  (42)
@@ -12,8 +12,8 @@ class ChannelTest: public testing::Test
 {
     protected:
         Channel<int> channel;
-        Channel<int>::ReceiverType& receiver;
-        Channel<int>::SenderType& sender;
+        Receiver<int>& receiver;
+        Sender<int>& sender;
 
     public:
         ChannelTest():
