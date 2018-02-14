@@ -45,6 +45,10 @@ ADD_EXECUTABLE(test-receiver src/test-receiver.cxx)
 TARGET_LINK_LIBRARIES(test-receiver ese-flow gtest_main)
 ADD_TEST(NAME test-receiver COMMAND test-receiver)
 
+ADD_EXECUTABLE(test-sender src/test-sender.cxx)
+TARGET_LINK_LIBRARIES(test-sender ese-flow gtest_main)
+ADD_TEST(NAME test-sender COMMAND test-sender)
+
 ADD_EXECUTABLE(test-thread src/test-thread.cxx)
 TARGET_LINK_LIBRARIES(test-thread ese-flow gtest_main)
 ADD_TEST(NAME test-thread COMMAND test-thread)
@@ -55,6 +59,7 @@ SET_PROPERTY(
         test-channel-consumer
         test-executor
         test-receiver
+        test-sender
         test-thread
     PROPERTY CXX_STANDARD 14
 )
