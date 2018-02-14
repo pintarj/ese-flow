@@ -15,8 +15,8 @@ namespace ese
 #include <functional>
 #include <mutex>
 #include <queue>
-#include <ese/flow/receiver.hxx>
-#include <ese/flow/sender.hxx>
+#include <ese/flow/channel-receiver.hxx>
+#include <ese/flow/channel-sender.hxx>
 
 namespace ese
 {

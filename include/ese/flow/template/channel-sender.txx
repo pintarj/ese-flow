@@ -1,4 +1,4 @@
-#include <ese/flow/sender.hxx>
+#include <ese/flow/channel-sender.hxx>
 #include <utility>
 
 namespace ese

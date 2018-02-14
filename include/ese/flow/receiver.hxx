@@ -2,127 +2,111 @@
 #ifndef ESE_FLOW_RECEIVER_HXX
 #define ESE_FLOW_RECEIVER_HXX
 
-namespace ese
-{
-    namespace flow
-    {
-        template<typename TElement, typename TQueue>
-        class Receiver;
-    }
-}
-
 #include <chrono>
-#include <functional>
-#include <ese/flow/channel.hxx>
+#include <boost/any.hpp>
 
 namespace ese
 {
     namespace flow
     {
         /**
-         * \brief Receives objects from a Channel object.
-         * \param TElement The type of elements to receive.
-         * \param TQueue The queue type used to store sent objects that waits to be received. The specified type have to
-         *     implement at least pop(), front() (or top()), and push() methods (std::queue and std::priority_queue are
-         *     both suitable as this template parameter).
+         * \brief Interface that receives elements of a specified type TElement.
+         * \param TElement The type of the elements to receive.
+         *
+         * The only method that have to be implemented is try_receive_until_0(). Any other method at the end
+         * will use this one.
          */
-        template<typename TElement, typename TQueue>
+        template<typename TElement>
         class Receiver
         {
-            public:
-                /**
-                 * \brief The type of the Channel that this Receiver interacts with.
-                 * */
-                typedef Channel<TElement, TQueue> ChannelType;
+        public:
+            /**
+             * \brief The type of the elements to receive.
+             * */
+            typedef TElement ElementType;
 
-                /**
-                 * \brief Destroys the object.
-                 * */
-                virtual ~Receiver() noexcept;
+            /**
+             * \brief Empty implementation.
+             * */
+            virtual ~Receiver() noexcept;
 
-                /**
-                 * \brief Receive an object from the channel.
-                 * \return The object.
-                 * \sa try_receive()
-                 *
-                 * The method will wait until there is an object to receive.
-                 * */
-                TElement receive() noexcept;
+            /**
+             * \brief Receive an element.
+             * \return The element.
+             * \sa try_receive()
+             *
+             * The method will wait until there is an element to receive.
+             * */
+            TElement receive();
 
-                /**
-                 * \brief Tries to receive an object from the channel.
-                 * \param object The pointer to the address where the received object have to be moved.
-                 * \param blocking If true, the method will block until an object is received or the Channel object
-                 *
-                 * \return True if the object was received (and moved to the address passed as argument), false
-                 *     otherwise (if blocking parameter was true, maybe waked up by the channel).
-                 * \sa receive()
-                 * \sa try_receive_for()
-                 *
-                 * The object will be moved to the address passed as argument and the method will return true. \n
-                 * Otherwise, if there is no object to receive, nothing will be moved to the passed address and the
-                 * method will return false. This can happen if: blocking parameter is true and the Channel object has
-                 * woke up this object; or blocking parameter is false and there is no object to receive.
-                 * */
-                bool try_receive(TElement* address, bool blocking = false) noexcept;
+            /**
+             * \brief Tries to receive an element.
+             * \param address The pointer to the address where the received element have to be moved.
+             * \param blocking If true, the method will block until an element is received.
+             * \return True if the element was received (and moved to the address passed as argument), false otherwise.
+             * \sa receive()
+             * \sa try_receive_for()
+             * \sa try_receive_until()
+             *
+             * The object will be moved to the address passed as argument and the method will return true. \n
+             * Otherwise, if there is no object to receive, nothing will be moved to the passed address and the
+             * method will return false. \n
+             * */
+            bool try_receive(TElement* address, bool blocking = false);
 
-                /**
-                 * \brief Tries to receive an object from the channel until a time point.
-                 * \param object The pointer to the address where the received object have to be moved.
-                 * \param time The time point to wait until.
-                 * \return True if the object was received (and moved to the address passed as argument), false
-                 *     otherwise (maybe waked up by the channel).
-                 * \sa receive()
-                 * \sa try_receive()
-                 *
-                 * The object will be moved to the address passed as argument and the method will return true. \n
-                 * Otherwise, if there is no object to receive (until the specified time point), nothing will be moved
-                 * to the passed address and the method will return false. This can happen if: the Channel object has
-                 * woke up this object; or time point was reached and there is no object to receive.
-                 * */
-                template<class Clock, class Duration>
-                bool try_receive_until(TElement* address, const std::chrono::time_point<Clock, Duration>& time);
+            /**
+             * \brief Tries to receive an element until a time point.
+             * \param address The pointer to the address where the received element have to be moved.
+             * \param time The time point to wait until.
+             * \return True if the element was received (and moved to the address passed as argument), false otherwise.
+             * \sa receive()
+             * \sa try_receive()
+             * \sa try_receive_for()
+             *
+             * The object will be moved to the address passed as argument and the method will return true. \n
+             * Otherwise, if there is no object to receive (until the specified time point), nothing will be moved to
+             * the passed address and the method will return false. \n
+             * */
+            template<class Clock, class Duration>
+            bool try_receive_until(TElement* address, const std::chrono::time_point<Clock, Duration>& time);
 
-                /**
-                 * \brief Tries to receive an object from the channel for an amount of time.
-                 * \param object The pointer to the address where the received object have to be moved.
-                 * \param time The amount of time to wait.
-                 * \return True if the object was received (and moved to the address passed as argument), false
-                 *     otherwise (maybe waked up by the channel).
-                 * \sa receive()
-                 * \sa try_receive()
-                 *
-                 * The object will be moved to the address passed as argument and the method will return true. \n
-                 * Otherwise, if there is no object to receive (for the entire specified amount of time), nothing will
-                 * be moved to the passed address and the method will return false. This can happen if: the Channel
-                 * object has woke up this object; or time has elapsed and there is no object to receive.
-                 * */
-                template<class Rep, class Period>
-                bool try_receive_for(TElement* address, const std::chrono::duration<Rep, Period>& time);
+            /**
+             * \brief Tries to receive an element for an amount of time.
+             * \param address The pointer to the address where the received element have to be moved.
+             * \param duration The amount of time to wait.
+             * \return True if the element was received (and moved to the address passed as argument), false otherwise.
+             * \sa receive()
+             * \sa try_receive()
+             * \sa try_receive_until()
+             *
+             * The object will be moved to the address passed as argument and the method will return true. \n
+             * Otherwise, if there is no object to receive (for the entire specified amount of time), nothing will
+             * be moved to the passed address and the method will return false. \n
+             * */
+            template<class Rep, class Period>
+            bool try_receive_for(TElement* address, const std::chrono::duration<Rep, Period>& duration);
 
-            private:
-                /**
-                 * \brief The channel from which it receives the objects.
-                 * */
-                ChannelType* channel;
-
-                /**
-                 * \brief Returns true if the channel's queue is not empty.
-                 * */
-                std::function<bool()> channel_queue_not_empty_predicate;
-
-                /**
-                 * \brief Create a Receiver object.
-                 * \param channel The reference to the channel from which it receives the objects.
-                 * */
-                Receiver(ChannelType* channel) noexcept;
-
-            friend ChannelType;
+        protected:
+            /**
+             * \brief Tries to receive an element for an amount of time.
+             * \param address The pointer to the address where the received element have to be moved.
+             * \param duration The amount of time to wait (using boost::any time for accept different time_points).
+             * \return True if the element was received (and moved to the address passed as argument), false otherwise.
+             * \sa receive()
+             * \sa try_receive()
+             * \sa try_receive_until()
+             * \sa try_receive_for()
+             *
+             * The object will be moved to the address passed as argument and the method will return true. \n
+             * Otherwise, if there is no object to receive (for the entire specified amount of time), nothing will
+             * be moved to the passed address and the method will return false. \n
+             */
+            virtual bool try_receive_until_0(TElement* address, const boost::any& duration) = 0;
         };
 
     }
 }
 
-#include "template/receiver.txx"
+#include "ese/flow/template/receiver.txx"
 
 #endif
