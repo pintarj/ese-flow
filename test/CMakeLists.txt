@@ -45,6 +45,10 @@ ADD_EXECUTABLE(test-filter src/test-filter.cxx)
 TARGET_LINK_LIBRARIES(test-filter gtest_main)
 ADD_TEST(NAME test-filter COMMAND test-filter)
 
+ADD_EXECUTABLE(test-filter-receiver src/test-filter-receiver.cxx)
+TARGET_LINK_LIBRARIES(test-filter-receiver gtest_main)
+ADD_TEST(NAME test-filter-receiver COMMAND test-filter-receiver)
+
 ADD_EXECUTABLE(test-filter-sender src/test-filter-sender.cxx)
 TARGET_LINK_LIBRARIES(test-filter-sender gtest_main)
 ADD_TEST(NAME test-filter-sender COMMAND test-filter-sender)
@@ -67,6 +71,7 @@ SET_PROPERTY(
         test-channel-consumer
         test-executor
         test-filter
+        test-filter-receiver
         test-filter-sender
         test-receiver
         test-sender
