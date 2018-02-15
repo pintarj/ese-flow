@@ -81,7 +81,7 @@ namespace ese
 
         template<typename TChannel>
         template<class Clock, class Duration>
-        bool ChannelReceiver<TChannel>::try_receive_until_1(int* address, const std::chrono::time_point<Clock, Duration>& time)
+        bool ChannelReceiver<TChannel>::try_receive_until_1(ElementType* address, const std::chrono::time_point<Clock, Duration>& time)
         {
             std::unique_lock<std::mutex> lock(channel.mutex);
 

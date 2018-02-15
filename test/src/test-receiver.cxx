@@ -18,7 +18,6 @@ public:
         condition_variable.notify_all();
     }
 
-protected:
     bool try_receive_until_0(int* address, const boost::any& time) override
     {
         using time_point_high = std::chrono::time_point<std::chrono::high_resolution_clock>;

@@ -86,7 +86,6 @@ namespace ese
             template<class Rep, class Period>
             bool try_receive_for(TElement* address, const std::chrono::duration<Rep, Period>& duration);
 
-        protected:
             /**
              * \brief Tries to receive an element for an amount of time.
              * \param address The pointer to the address where the received element have to be moved.

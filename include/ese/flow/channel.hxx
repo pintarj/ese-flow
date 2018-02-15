@@ -134,7 +134,6 @@ namespace ese
              * */
             typedef typename TChannel::ElementType ElementType;
 
-        protected:
             /**
              * \brief Tries to receive an element until a time point.
              * \param address The pointer to the address where the received element have to be moved.
@@ -176,7 +175,7 @@ namespace ese
              * be moved to the passed address and the method will return false. \n
              * */
             template<class Clock, class Duration>
-            bool try_receive_until_1(int* address, const std::chrono::time_point<Clock, Duration>& time);
+            bool try_receive_until_1(ElementType* address, const std::chrono::time_point<Clock, Duration>& time);
 
             friend ChannelType;
         };
