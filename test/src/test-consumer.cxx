@@ -6,6 +6,8 @@
 using namespace ese::flow;
 using namespace std::chrono_literals;
 
+using Clock = std::chrono::high_resolution_clock;
+
 class TestConsumerFactory: public ConsumerFactory<int>
 {
 public:
@@ -105,7 +107,7 @@ TEST_F(ConsumerTest, consumerMoveConstructor)
 /*
  * Check consuming some ints with create_one_until() behaviour
  */
-TEST_F(ConsumerTest, nonBlockingCreateOneUntil)
+TEST_F(ConsumerTest, createOneUntil)
 {
     using Clock = std::chrono::high_resolution_clock;
     auto now = Clock::now();
@@ -174,7 +176,7 @@ TEST_F(ConsumerTest, nonBlockingCreateOneUntil)
 /*
  * Check consuming some ints with create_one_for() behaviour
  */
-TEST_F(ConsumerTest, nonBlockingCreateOneFor)
+TEST_F(ConsumerTest, createOneFor)
 {
 
     Thread thread([this] ()
@@ -222,6 +224,216 @@ TEST_F(ConsumerTest, nonBlockingCreateOneFor)
     ASSERT_EQ(consumed_sum[3], 2);
     ASSERT_EQ(consumed_sum[4], 2);
     ASSERT_EQ(consumed_sum[5], 3);
+}
+
+/*
+ * Check consuming some ints with non-blocking create_n() behaviour
+ */
+TEST_F(ConsumerTest, nonBlockingCreateN)
+{
+    Consumer<int> consumer = consumer_factory.create_n(4);
+
+    int consumed[2];
+    int consumed_sum[2];
+    int partial_sum[2];
+
+    sender << 1;
+    sender << 2;
+
+    consumed[0] = consumer();
+    partial_sum[0] = consumer_factory.get_sum();
+    consumed_sum[0] = consumer.get_consumed_count();
+
+    sender << 3;
+    sender << 4;
+    sender << 5;
+    sender << 6;
+    sender << 7;
+
+    consumed[1] = consumer();
+    partial_sum[1] = consumer_factory.get_sum();
+    consumed_sum[1] = consumer.get_consumed_count();
+
+    ASSERT_EQ(consumed[0], 2);
+    ASSERT_EQ(consumed[1], 4);
+
+    ASSERT_EQ(partial_sum[0], 3);
+    ASSERT_EQ(partial_sum[1], 21);
+
+    ASSERT_EQ(consumed_sum[0], 2);
+    ASSERT_EQ(consumed_sum[1], 6);
+}
+
+/*
+ * Check consuming some ints with blocking create_n() behaviour
+ */
+TEST_F(ConsumerTest, blockingCreateN)
+{
+    Consumer<int> consumer = consumer_factory.create_n(4, true);
+
+    int consumed[2];
+    int consumed_sum[2];
+    int partial_sum[2];
+
+    auto procedure = [this, &consumer] ()
+    {
+        this->sender << 1;
+        this->sender << 2;
+
+        std::this_thread::sleep_for(30ms);
+        consumer.require_stop();
+        this->channel.wake_up();
+        std::this_thread::sleep_for(15ms);
+
+        sender << 3;
+        sender << 4;
+
+        std::this_thread::sleep_for(30ms);
+
+        sender << 5;
+        sender << 6;
+        sender << 7;
+    };
+
+    Thread thread(std::move(procedure));
+
+    consumed[0] = consumer();
+    partial_sum[0] = consumer_factory.get_sum();
+    consumed_sum[0] = consumer.get_consumed_count();
+
+    consumed[1] = consumer();
+    partial_sum[1] = consumer_factory.get_sum();
+    consumed_sum[1] = consumer.get_consumed_count();
+
+    thread.join();
+
+    ASSERT_EQ(consumed[0], 2);
+    ASSERT_EQ(consumed[1], 4);
+
+    ASSERT_EQ(partial_sum[0], 3);
+    ASSERT_EQ(partial_sum[1], 21);
+
+    ASSERT_EQ(consumed_sum[0], 2);
+    ASSERT_EQ(consumed_sum[1], 6);
+}
+
+/*
+ * Check consuming some ints with create_n_until() behaviour
+ */
+TEST_F(ConsumerTest, createNUntil)
+{
+    auto now = Clock::now();
+    Consumer<int> consumer = consumer_factory.create_n_until(4, now + 40ms);
+
+    int consumed[2];
+    int consumed_sum[2];
+    int partial_sum[2];
+
+    auto procedure = [this, &consumer] ()
+    {
+        this->sender << 1;
+        this->sender << 2;
+
+        std::this_thread::sleep_for(10ms);
+        consumer.require_stop();
+        this->channel.wake_up();
+        std::this_thread::sleep_for(10ms);
+
+        sender << 3;
+        sender << 4;
+
+        std::this_thread::sleep_for(1000ms);
+
+        sender << 5;
+        sender << 6;
+        sender << 7;
+    };
+
+    Thread thread(std::move(procedure));
+
+    consumed[0] = consumer();
+    partial_sum[0] = consumer_factory.get_sum();
+    consumed_sum[0] = consumer.get_consumed_count();
+
+    consumed[1] = consumer();
+    partial_sum[1] = consumer_factory.get_sum();
+    consumed_sum[1] = consumer.get_consumed_count();
+
+    thread.join();
+
+    ASSERT_EQ(consumed[0], 2);
+    ASSERT_EQ(consumed[1], 2);
+
+    ASSERT_EQ(partial_sum[0], 3);
+    ASSERT_EQ(partial_sum[1], 10);
+
+    ASSERT_EQ(consumed_sum[0], 2);
+    ASSERT_EQ(consumed_sum[1], 4);
+}
+
+/*
+ * Check consuming some ints with create_n_for() behaviour
+ */
+TEST_F(ConsumerTest, createNFor)
+{
+    Consumer<int> consumer = consumer_factory.create_n_for(4, 20ms);
+
+    int consumed[3];
+    int consumed_sum[3];
+    int partial_sum[3];
+
+    auto procedure = [this, &consumer] ()
+    {
+        this->sender << 1;
+        this->sender << 2;
+
+        std::this_thread::sleep_for(10ms);
+        consumer.require_stop();
+        this->channel.wake_up();
+        std::this_thread::sleep_for(10ms);
+
+        sender << 3;
+        sender << 4;
+
+        std::this_thread::sleep_for(30ms);
+
+        sender << 5;
+        sender << 6;
+        sender << 7;
+        sender << 8;
+        sender << 9;
+        sender << 10;
+    };
+
+    Thread thread(std::move(procedure));
+
+    consumed[0] = consumer();
+    partial_sum[0] = consumer_factory.get_sum();
+    consumed_sum[0] = consumer.get_consumed_count();
+
+    consumed[1] = consumer();
+    partial_sum[1] = consumer_factory.get_sum();
+    consumed_sum[1] = consumer.get_consumed_count();
+
+    std::this_thread::sleep_for(40ms);
+
+    consumed[2] = consumer();
+    partial_sum[2] = consumer_factory.get_sum();
+    consumed_sum[2] = consumer.get_consumed_count();
+
+    thread.join();
+
+    ASSERT_EQ(consumed[0], 2);
+    ASSERT_EQ(consumed[1], 2);
+    ASSERT_EQ(consumed[2], 4);
+
+    ASSERT_EQ(partial_sum[0], 3);
+    ASSERT_EQ(partial_sum[1], 10);
+    ASSERT_EQ(partial_sum[2], 36);
+
+    ASSERT_EQ(consumed_sum[0], 2);
+    ASSERT_EQ(consumed_sum[1], 4);
+    ASSERT_EQ(consumed_sum[2], 8);
 }
 
 int main(int argc, char** argv)

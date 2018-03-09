@@ -75,6 +75,121 @@ namespace ese
         }
 
         template<typename TElement>
+        typename ConsumerFactory<TElement>::ConsumerType ConsumerFactory<TElement>::create_n(int n, bool blocking)
+        {
+            std::function<int(ConsumerType*)> behaviour = [this, n, blocking] (ConsumerType* consumer) -> int
+            {
+                TElement element;
+                int consumed = 0;
+
+                while (true)
+                {
+                    if (consumer->is_stop_required())
+                        break;
+
+                    if (consumed >= n)
+                        break;
+
+                    if (this->receiver->try_receive(&element, blocking))
+                    {
+                        this->consume_0(std::move(element));
+                        ++consumer->data->consumed_count;
+                        ++consumed;
+                    }
+                    else
+                    {
+                        if (blocking)
+                            continue;
+                        else
+                            break;
+                    }
+                }
+
+                return consumed;
+            };
+
+            return ConsumerType(std::move(behaviour));
+        }
+
+        template<typename TElement>
+        template<class Clock, class Duration>
+        typename ConsumerFactory<TElement>::ConsumerType ConsumerFactory<TElement>::create_n_until(int n, const std::chrono::time_point<Clock, Duration>& time)
+        {
+            std::function<int(ConsumerType*)> behaviour = [this, n, time = time] (ConsumerType* consumer) -> int
+            {
+                TElement element;
+                int consumed = 0;
+
+                while (true)
+                {
+                    if (consumer->is_stop_required())
+                        break;
+
+                    if (consumed >= n)
+                        break;
+
+                    if (this->receiver->try_receive_until(&element, time))
+                    {
+                        this->consume_0(std::move(element));
+                        ++consumer->data->consumed_count;
+                        ++consumed;
+                    }
+                    else
+                    {
+                        if (Clock::now() < time)
+                            continue;
+                        else
+                            break;
+                    }
+                }
+
+                return consumed;
+            };
+
+            return ConsumerType(std::move(behaviour));
+        }
+
+        template<typename TElement>
+        template<class Rep, class Period>
+        typename ConsumerFactory<TElement>::ConsumerType ConsumerFactory<TElement>::create_n_for(int n, const std::chrono::duration<Rep, Period>& duration)
+        {
+            std::function<int(ConsumerType*)> behaviour = [this, n, duration = duration] (ConsumerType* consumer) -> int
+            {
+                using Clock = std::chrono::high_resolution_clock;
+                auto time = Clock::now() + duration;
+                TElement element;
+                int consumed = 0;
+
+                while (true)
+                {
+                    if (consumer->is_stop_required())
+                        break;
+
+                    if (consumed >= n)
+                        break;
+
+                    if (this->receiver->try_receive_until(&element, time))
+                    {
+                        this->consume_0(std::move(element));
+                        ++consumer->data->consumed_count;
+                        ++consumed;
+                    }
+                    else
+                    {
+                        if (Clock::now() < time)
+                            continue;
+                        else
+                            break;
+                    }
+                }
+
+                return consumed;
+            };
+
+            return ConsumerType(std::move(behaviour));
+        }
+
+        template<typename TElement>
         Consumer<TElement>::Consumer(Consumer<ElementType>&& other):
             data(std::move(other.data))
         {
@@ -110,6 +225,12 @@ namespace ese
         void Consumer<TElement>::require_stop() noexcept
         {
             data->stop_required = true;
+        }
+
+        template<typename TElement>
+        bool Consumer<TElement>::is_stop_required() noexcept
+        {
+            return data->stop_required.exchange(false);
         }
 
         template<typename TElement>

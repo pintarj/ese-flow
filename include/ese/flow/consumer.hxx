@@ -3,6 +3,7 @@
 #define ESE_FLOW_CONSUMER_HXX
 
 #include <atomic>
+#include <chrono>
 #include <functional>
 #include <ese/flow/receiver.hxx>
 
@@ -60,6 +61,7 @@ namespace ese
              * \return The created ::Consumer object.
              * \sa create_one_until()
              * \sa create_one_for()
+             * \sa create_n()
              *
              * If there is an element to consume, that element would be consumed by the consumer and that would return,
              * otherwise, if there is no element to consume, the consumer would return (returning some negative feedback
@@ -74,6 +76,7 @@ namespace ese
              * \return The created ::Consumer object.
              * \sa create_one()
              * \sa create_one_for()
+             * \sa create_n_until()
              *
              * If there is an element to consume, that element would be consumed by the consumer and that would return,
              * otherwise, if there is no element to consume, the consumer would wait until the specified time point for
@@ -90,6 +93,7 @@ namespace ese
              * \return The created ::Consumer object.
              * \sa create_one()
              * \sa create_one_until()
+             * \sa create_n_for()
              *
              * If there is an element to consume, that element would be consumed by the consumer and that would return,
              * otherwise, if there is no element to consume, the consumer would wait for the specified amount of time
@@ -98,6 +102,55 @@ namespace ese
              * */
             template<class Rep, class Period>
             ConsumerType create_one_for(const std::chrono::duration<Rep, Period>& duration);
+
+            /**
+             * \brief Create a ::Consumer object that tries to consumes n elements at a time.
+             * \param blocking If true, the consumer will block until n elements are received, if false and there is
+             *     no n elements available, the consumer will (consume available and then) return immediately.
+             * \return The created ::Consumer object.
+             * \sa create_one()
+             * \sa create_n_until()
+             * \sa create_n_for()
+             *
+             * If there are n element to consume, those elements would be consumed by the consumer and that would
+             * return, otherwise, if there are no n elements to consume, the consumer will consume all available
+             * elements and then will return (returning the number of consumed elements).
+             * */
+            ConsumerType create_n(int n, bool blocking = false);
+
+            /**
+             * \brief Create a ::Consumer object that tries to consumes n elements at a time, waiting until a specified
+             *     time point.
+             * \param time The time point to wait until.
+             * \return The created ::Consumer object.
+             * \sa create_one_until()
+             * \sa create_n()
+             * \sa create_n_for()
+             *
+             * If there are n element to consume, those elements would be consumed by the consumer and that would
+             * return, otherwise, if there are no n elements to consume, the consumer would wait until the specified
+             * time point for new elements, if there are no new elements, the consumer will consume all available
+             * elements and then will return (returning the number of consumed elements).
+             * */
+            template<class Clock, class Duration>
+            ConsumerType create_n_until(int n, const std::chrono::time_point<Clock, Duration>& time);
+
+            /**
+             * \brief Create a ::Consumer object that tries to consumes n elements at a time, waiting for an amount of
+             *     time.
+             * \param time The amount of time to wait.
+             * \return The created ::Consumer object.
+             * \sa create_one()
+             * \sa create_n_until()
+             * \sa create_n_for()
+             *
+             * If there are n element to consume, those elements would be consumed by the consumer and that would
+             * return, otherwise, if there are no n elements to consume, the consumer would wait for the specified
+             * amount of time for new elements, if there are no new elements, the consumer will consume all available
+             * elements and then will return (returning the number of consumed elements).
+             * */
+            template<class Rep, class Period>
+            ConsumerType create_n_for(int n, const std::chrono::duration<Rep, Period>& duration);
 
             /**
              * \brief Consumes the passed element.
@@ -178,7 +231,7 @@ namespace ese
             int get_consumed_count() const noexcept;
 
             /**
-             * \brief
+             * \brief Requires the stop of the consumer.
              * */
             void require_stop() noexcept;
 
@@ -211,6 +264,13 @@ namespace ese
                 _InnerData_(std::function<int(ThisType*)>&& behaviour);
             }
             InnerData;
+
+            /**
+             * \brief Tells if the stop is required.
+             *
+             * It also resets the "stop_required" variable.
+             * */
+            bool is_stop_required() noexcept;
 
             /**
              * \brief The inner data.
