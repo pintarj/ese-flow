@@ -33,6 +33,10 @@ ADD_EXECUTABLE(test-channel src/test-channel.cxx)
 TARGET_LINK_LIBRARIES(test-channel gtest_main)
 ADD_TEST(NAME test-channel COMMAND test-channel)
 
+ADD_EXECUTABLE(test-condition-variable src/test-condition-variable.cxx)
+TARGET_LINK_LIBRARIES(test-condition-variable ese-flow gtest_main)
+ADD_TEST(NAME test-condition-variable COMMAND test-condition-variable)
+
 ADD_EXECUTABLE(test-consumer src/test-consumer.cxx)
 TARGET_LINK_LIBRARIES(test-consumer ese-flow gtest_main)
 ADD_TEST(NAME test-consumer COMMAND test-consumer)
@@ -68,6 +72,7 @@ ADD_TEST(NAME test-thread COMMAND test-thread)
 SET_PROPERTY(
     TARGET
         test-channel
+        test-condition-variable
         test-consumer
         test-executor
         test-filter
