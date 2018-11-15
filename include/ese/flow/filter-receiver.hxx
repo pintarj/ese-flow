@@ -10,44 +10,44 @@ namespace ese
     namespace flow
     {
         /**
-         * \brief A Sender implementation that performs filtering on sent elements.
-         * \tparam TIn The type of sent elements before filtering.
-         * \tparam TOut The type of sent elements after filtering.
+         * \brief A Receiver implementation that performs filtering on receiving elements.
+         * \tparam TIn The type of received elements before filtering.
+         * \tparam TOut The type of received elements after filtering.
          *
-         * This Sender implementation class operates with two other objects: the first is another Sender object (that
-         * sends TOut elements), the seconds is a Filter object (that shares the same TIn and TOut). All the elements
-         * of type TIn sent via this FilterSender object will be firstly filtered using the specified Filter object
-         * (so the new type of those sent elements would become TOut) and finally forwarded to the specified Sender
-         * object.
+         * This Receiver implementation class operates with two other objects: the first is another Receiver object
+         * (from which this class receives TIn elements), the seconds is a Filter object (that shares the same TIn and
+         * TOut). All the elements of type TIn received via this FilterReceiver object will be firstly filtered using
+         * the specified Filter object (so the new type of those received elements would become TOut) and finally
+         * returned.
          */
         template<typename TIn, typename TOut>
         class FilterReceiver: public Receiver<TOut>
         {
         public:
             /**
-             * \brief The type of sent elements before filtering.
+             * \brief The type of received elements before filtering.
              * */
             typedef TIn InType;
 
             /**
-             * \brief The type of sent elements after filtering.
+             * \brief The type of received elements after filtering.
              * */
             typedef TOut OutType;
 
             /**
-             * \brief The type of the filter that filters sent elements.
+             * \brief The type of the filter that filters received elements.
              * */
             typedef Filter<TIn, TOut> FilterType;
 
             /**
-             * \brief The type of sender that will receive the forwarded elements.
+             * \brief The type of receiver from which this class is receiving elements.
              * */
             typedef Receiver<TIn> ReceiverType;
 
             /**
-             * \brief Construct a FilterSender object, that interacts with a specified filer and sender.
-             * \param filter The the filter that filters sent elements.
-             * \param sender The sender that will receive the forwarded elements.
+             * \brief Construct a FilterReceiver object, that interacts with a specified filer and receiver.
+             * \param filter The the filter that filters received elements.
+             * \param receiver The receiver from which this class is receiving elements.
              * */
             FilterReceiver(FilterType* filter, ReceiverType* receiver) noexcept;
 
@@ -75,12 +75,12 @@ namespace ese
 
         private:
             /**
-             * \brief The the filter that filters sent elements.
+             * \brief The filter that filters received elements.
              * */
             FilterType* filter;
 
             /**
-             * \brief The sender that will receive the forwarded elements.
+             * \brief The receiver from which this class is receiving elements.
              * */
             ReceiverType* receiver;
         };
